@@ -1,0 +1,9 @@
+.input-style {
+    font-family: 'Inconsolata', 'Courier', monospace;
+    font-size: 11pt;
+    padding: 8px 12px;
+}
+
+textarea {
+    resize: none;
+}

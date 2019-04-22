@@ -1,0 +1,27 @@
+{
+  "name": "markide",
+  "version": "1.0.0",
+  "description": "Interpreter app for Markov Algorithms.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spiderlisa/markIDE.git"
+  },
+  "author": "Lisa Zhylina",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/spiderlisa/markIDE/issues"
+  },
+  "homepage": "https://github.com/spiderlisa/markIDE#readme",
+  "dependencies": {
+    "codemirror": "^5.46.0",
+    "electron": "^4.1.4",
+    "electron-reload": "^1.4.0",
+    "electron-store": "^3.2.0",
+    "jquery": "^3.4.0",
+    "semantic-ui": "^2.4.2"
+  }
+}

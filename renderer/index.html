@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>markIDE</title>
+
+    <link rel="stylesheet" type="text/css" href="../semantic/dist/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="../src/style/style.css">
+    <link rel="stylesheet" type="text/css" href="../src/style/codemirror.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="ui two column internally celled grid" style="margin: 0">
+        <div class="row">
+            <div class="three wide column">
+                <h3 class="ui header">Files</h3>
+            </div>
+
+            <div class="thirteen wide column">
+                <div class="ui breadcrumb">
+                    <div class="section" >Home</div>
+                    <div class="divider"> / </div>
+                    <div class="active section">hw0.mi</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="three wide column" style="padding: 0">
+                <div class="ui secondary vertical menu" style="margin: 0; width: auto">
+                    <a class="active item">
+                        hw0.mi
+                    </a>
+                    <a class="item">
+                        hw1.mi
+                    </a>
+                    <a class="item">
+                        hw2.mi
+                    </a>
+                    <a class="item">
+                        hw3.mi
+                    </a>
+                </div>
+            </div>
+
+            <div class="thirteen wide column">
+                <form class="ui form">
+                    <div class="field">
+                        <input id="alph-main" type="text" placeholder="Main alphabet" class="input-style">
+                    </div>
+                    <div class="field">
+                        <input id="alph-addt" type="text" placeholder="Additional alphabet" class="input-style">
+                    </div>
+
+                    <div class="field">
+                        <textarea id="code-area" rows="14">// My first Normal Markov Algorithms program.</textarea>
+                    </div>
+
+                    <div class="field">
+                        <div class="ui action input">
+                            <input id="word-input" type="text" placeholder="Input word" class="input-style">
+                            <button id="run-btn" class="ui blue submit button">Run</button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <textarea class="input-style" id="output-area" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const jQuery = require('jquery');
+    const $ = jQuery;
+    require('../semantic/dist/semantic.min.js');
+
+    $('.ui.form').form({
+        fields: {
+            tm: {
+                identifier: 'alph-main',
+                rules: [{
+                    type: 'empty',
+                }]
+            },
+            code: {
+                identifier: 'code-area',
+                rules: [{
+                    type: 'empty',
+                }]
+            },
+            input: {
+                identifier: 'word-input',
+                rules: [{
+                    type: 'empty',
+                }]
+            }
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="../src/codemirror.js"></script>
+<script src="../semantic/dist/semantic.min.js"></script>
+
+<script src="./index.js"></script>
+</body>
+</html>

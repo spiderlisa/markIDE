@@ -1,3 +1,11 @@
+.DS_Store
+
+# IDEA
+.idea
+
+#Semantic UI
+semantic
+
 # Logs
 logs
 *.log
