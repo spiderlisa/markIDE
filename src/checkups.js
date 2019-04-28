@@ -24,14 +24,50 @@ function checkAlphabets(tm, ta) {
 }
 
 function checkCode(tm, ta, code) {
-    // var alp = tm + ta;
-    //
-    // var re = new RegExp(alp, "->");
-    // code.forEach(function (line) {
-    //
-    // });
+    let alp = (tm + ta).replace(" ", "");
+    if (alp.length == 0) return false;
 
-    //ipcRenderer.send('set-code', lines)
+    let empty = new RegExp('^\\s*$');
+    // matches [ // my comment ... ]
+    let comment = new RegExp('^\\s*(\\\/\\\/)(.*)\\s*$');
+    // matches [ abc -> b ] or [ abc b ]
+    let re1 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(['+ alp +']+)\\s*$');
+    // matches [ \ -> ab ] or [ \ ab ]
+    let re2 = new RegExp('^\\s*(\\\\)((\\s*->\\s*)|(\\s+))(['+ alp +']+)\\s*$');
+    // matches [ ab -> \ ] or [ ab \ ]
+    let re3 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(\\\\)\\s*$');
+
+    let lines = code.split("\n");
+    console.log(lines);
+
+    let lines_n = 0;
+    let flag = true;
+    let new_lines = [];
+    lines.forEach(function (line) {
+        let l = line;
+        if (!comment.test(line) && !empty.test(line)) {
+            ++lines_n;
+
+            // if line is semantically correct, make it pretty
+            // else mark code as incorrect
+
+            if (re1.test(line)) {
+                l.replace(re1, "$1 -> $5");
+                console.log(l);
+            } else if (re2.test(line)) {
+                l.replace(re2, '$1 -> $5');
+            } else if (re3.test(line)) {
+                l.replace(re3, '$1 -> $5');
+            } else {
+                flag = false;
+            }
+        }
+        new_lines.push(l);
+        console.log("NL: " + new_lines);
+    });
+
+    ipcRenderer.send('set-code', new_lines.join("\n"));
+    return (lines_n > 0) && flag;
 }
 
 function checkInput(tm, input) {
@@ -42,7 +78,8 @@ function checkInput(tm, input) {
         }
     });
 
-    ipcRenderer.send('input-ok', flag)
+    //ipcRenderer.send('input-ok', flag);
+    return flag;
 }
 
 exports.CheckAlphabets = checkAlphabets;

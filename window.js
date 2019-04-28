@@ -7,8 +7,9 @@ const defaultProps = {
 };
 
 class Window extends BrowserWindow {
-    constructor({file, ...windowSettings}) {
-        super({ ...defaultProps, ...windowSettings});
+    constructor({file, windowSettings}) {
+        super({ webPreferences: { nodeIntegration: true },
+                windowSettings});
 
         this.loadFile(file);
 

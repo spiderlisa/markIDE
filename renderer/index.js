@@ -15,6 +15,47 @@ $(function () {
     }).on('change',
         checkups.CheckCode(getMainAlph(), getAddtAlph(), getCode()
         // ));*/
+
+    // Main form validation
+    $.fn.form.settings.rules.codeCheck = function(value) {
+        console.log(checkups.CheckCode(getMainAlph(), getAddtAlph(), value));
+        return checkups.CheckCode(getMainAlph(), getAddtAlph(), value);
+    };
+
+    $('.ui.form').form({
+        on: "blur",
+        fields: {
+            tm: {
+                identifier: 'alph-main',
+                rules: [{
+                    type: 'empty',
+                }]
+            },
+            code: {
+                identifier: 'code-area',
+                rules: [{
+                    type: 'codeCheck',
+                }]
+            },
+            input: {
+                identifier: 'word-input',
+                rules: [{
+                    type: 'empty',
+                }]
+            }},
+        onInvalid: function () {
+            $("#run-btn").addClass("disabled");},
+        onValid: function () {
+            $("#run-btn").removeClass("disabled");
+        }
+    });
+
+    /*$('#word-input.focus').keyup(function (e) {
+        if (e.which == 13 || e.keyCode == 13)
+            $("#run-btn").click();
+    });*/
+
+
 });
 
 ipcRenderer.on('tm', (event, value) => {
@@ -55,6 +96,13 @@ $("#run-btn").click(function () {
     checkups.CheckInput(getMainAlph(), getInput());
 
     algorithm.RunCode(getMainAlph(), getAddtAlph(), getCode(), getInput());
+    $("#steps-btn").removeClass('hidden');
+});
+
+$("#steps-btn").click(function () {
+    var out_area = $("#output-area");
+    let curr = out_area.text();
+    out_area.text(curr + '\n\nSteps:\n' + algorithm.GetSteps);
 });
 
 function getMainAlph() {
@@ -72,4 +120,3 @@ function getCode() {
 function getInput() {
     return $("#word-input").val();
 }
-

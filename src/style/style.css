@@ -1,9 +1,52 @@
-.input-style {
-    font-family: 'Inconsolata', 'Courier', monospace;
-    font-size: 11pt;
-    padding: 8px 12px;
+html, body {
+    height: 100%;
 }
 
-textarea {
-    resize: none;
+.tall-100 {
+    height: 100%;
 }
+
+.no-margin {
+    margin: 0 !important;
+}
+
+.no-padding {
+    padding: 0 !important;
+}
+
+.auto-width {
+    width: auto !important;
+}
+
+.fit-screen {
+    height: 100% !important;
+}
+
+.input-style {
+    font-family: 'Inconsolata', 'Courier', monospace !important;
+    font-size: 11pt !important;
+    padding: 8px 12px !important;
+}
+
+.no-resize {
+    resize: none !important;
+}
+
+.no-bm {
+    margin-bottom: 0 !important;
+}
+
+#code-area {
+    height: 100%;
+}
+
+#steps-btn {
+    background: transparent;
+    border: none;
+}
+
+#steps-btn img {
+    width: 20px;
+    height: 20px;
+}
+

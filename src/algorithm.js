@@ -5,33 +5,51 @@ const { ipcRenderer } = require('electron');
 var alphabetM, alphabetA;
 var rules = {};
 var inputString, outputString;
-var history = [];
+var steps = [];
 var end = false;
+var terminate = false;
+var cycleCount = 0;
 
 function runCode(tm, ta, code, input) {
     alphabetM = tm.split(" ");
     alphabetA = ta.split(" ");
-
-    code.split("\n").forEach(splitRule);
-
+    code.split("\n").forEach(function (row) {
+        if (row.includes("->"))
+            splitRule(row);
+    });
     inputString = outputString = input;
 
     while(!end) {
-        checkForFinish();
+        end = noRulesToApply();
         for (let rule in rules) {
-            applyRule(rule);
-            if (end) break;
+            if (outputString.includes(rule)) {
+                applyRule(rule);
+                break;
+            }
         }
+        console.log(end);
     }
 
-    var message;
-    if (normalConversionFailed())
-        message = "Conversion unsuccessful (extra symbols were left after applying rules): ";
-    else
-        message = "Conversion successful: ";
-    ipcRenderer.send('set-output', message + "\n" + outputString);
+    ipcRenderer.send('set-output', getMessage());
 
-    console.log(history);
+    console.log(steps);
+    console.log(cycleCount);
+}
+
+function getMessage() {
+    if (terminate)
+        return "Endless Cycle Error.\nClick STEPS to see when the process was terminated.\n";
+
+    if (end && !outputInRange())
+        return "Extra Characters Error.\nSome of the characters from the additional alphabet " +
+            "made their way into the final word. Add these characters into the main " +
+            "alphabet if the result below is satisfactory " +
+            "or change the rules to make the characters go away from the final word.\n" +
+            "Result: " + outputString + "\n";
+
+    if (end && outputInRange())
+        return "Run successful:\n" + outputString + "\n";
+
 }
 
 function splitRule(rule) {
@@ -40,38 +58,60 @@ function splitRule(rule) {
 }
 
 function applyRule(rule) {
-    while (outputString.includes(rule) && !end) {
-        makeStep(rule);
-    }
-}
-
-function makeStep(rule) {
-    if (rules[rule]==="\\") {
-        outputString = outputString.replace(rule, "");
-    } else if (rules[rule].includes(".")) {
+    // if this rule is FINAL
+    if (rules[rule].includes(".")) {
+        let replacement = rules[rule].substring(0, rules[rule].length - 1);
+        outputString = outputString.replace(rule, replacement);
         end = true;
-        outputString = outputString.replace(rule, rules[rule].substring(0, rules[rule].length-1));
-    } else
+    }
+    // if the RIGHT part of rule is EMPTY
+    else if (rules[rule] === "\\") {
+        outputString = outputString.replace(rule, "");
+    }
+    // if the LEFT part of rule is EMPTY
+    else if (rule === "\\") {
+        outputString = rules[rule] + outputString;
+    }
+    // default (neither FINAL, nor contains EMPTY parts)
+    else {
         outputString = outputString.replace(rule, rules[rule]);
+    }
 
-    history.push(outputString);
+    checkForEndlessCycle();
+
+    let step = {
+        rule: rule + " -> " + rules[rule],
+        result: outputString
+    };
+    steps.push(step);
+    console.log(step);
 }
 
-function checkForFinish() {
-    let flag = true;
+function noRulesToApply() {
     for (let rule in rules) {
         if (outputString.includes(rule))
-            flag = false;
+            return false;
     }
-    end = flag;
+    return true;
 }
 
-function normalConversionFailed() {
-    alphabetA.forEach(function (a) {
-        if (outputString.includes(a))
-            return true;
-    });
-    return false;
+function checkForEndlessCycle() {
+    let steps_ = steps.reverse();
+    for (let step of steps_) {
+        if (outputString == step.result) {
+            console.log("repeats " + outputString + " " + step.result);
+            terminate = true;
+            break;
+        }
+    }
 }
+
+function outputInRange() {
+    let regex = new RegExp('^[' + alphabetM.join('') + ']+$');
+    return regex.test(outputString);
+}
+
+
 
 exports.RunCode = runCode;
+exports.GetSteps = steps;
