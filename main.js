@@ -1,14 +1,10 @@
 'use strict';
 
 const path = require('path');
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, Menu, shell } = require('electron');
 
 const Window = require('./window');
-const Store = require('./datastore');
-
 let mainWindow;
-
-const store = new Store({ name: 'markIDE' });
 
 function main() {
     mainWindow = new Window({
@@ -18,31 +14,123 @@ function main() {
     //mainWindow.webContents.openDevTools();
 
     ipcMain.on('set-tm', (event, val) => {
-        store.saveTm();
         mainWindow.send('tm', val)
     });
 
     ipcMain.on('set-ta', (event, val) => {
-        store.saveTa();
         mainWindow.send('ta', val)
     });
 
     ipcMain.on('set-code', (event, val) => {
-        store.saveCode();
         mainWindow.send('code', val)
     });
 
     ipcMain.on('set-input', (event, val) => {
-        store.saveInput();
         mainWindow.send('input', val)
     });
 
     ipcMain.on('set-output', (event, res) => {
-        store.saveOutput();
         mainWindow.send('output', res)
     })
 }
 
-app.on('ready', main);
+function initMenu() {
+    const isMac = (process.platform === 'darwin');
+    console.log(app.getName());
+    const template = [
+        (isMac ? {
+            label: app.getName(),
+            submenu: [
+                { role: 'about' },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideothers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' }
+            ]
+        } : {}), {
+            label: 'File',
+            submenu: [{
+                label: 'Open',
+                accelerator: 'CmdOrCtrl+O',
+                click() {
+                    ipcMain.send('open-file-dialog');
+                }
+            }, {
+                label: 'Save',
+                accelerator: 'CmdOrCtrl+S',
+                click() {
+
+                }
+            }, {
+                label: 'Save As',
+                accelerator: 'Alt+CmdOrCtrl+S',
+                role: 'save-dialog'
+            }]
+        }, {
+            label: 'Edit',
+            submenu: [
+                { role: 'undo' },
+                { role: 'redo' },
+                { type: 'separator' },
+                { role: 'cut' },
+                { role: 'copy' },
+                { role: 'paste' },
+                ...(isMac ? [
+                    { type: 'separator' },
+                    {
+                        label: 'Speech',
+                        submenu: [
+                            { role: 'startspeaking' },
+                            { role: 'stopspeaking' }
+                        ]
+                    }
+                ] : [])
+            ]
+        }, {
+            label: 'View',
+            submenu: [
+                { role: 'reload' },
+                { role: 'forcereload' },
+                { role: 'toggledevtools' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' }
+            ]
+        }, {
+            label: 'Window',
+            submenu: [
+                { role: 'minimize' },
+                { role: 'zoom' },
+                ...(isMac ? [
+                    { type: 'separator' },
+                    { role: 'front' },
+                    { type: 'separator' },
+                    { role: 'window' }
+                ] : [
+                    { role: 'close' }
+                ])
+            ]
+        }, {
+            role: 'help',
+            submenu: [{
+                label: 'Learn More',
+                click () {
+                    shell.openExternal('https://github.com/spiderlisa/markIDE')
+                }
+            }]
+        }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+}
+
+app.on('ready', () => {
+    main();
+    initMenu();
+});
 
 app.on('window-all-closed', app.quit);
