@@ -99,8 +99,8 @@ $("#steps-btn").click(function () {
     } else {
         let steps = algorithm.GetSteps;
         let steps_text = '';
-        steps.forEach(function (step, i) {
-            steps_text += ("\n" + i + ". " + step.rule + "  =>  " + step.result);
+        steps.forEach(function (step) {
+            steps_text += ("\n" + step.i + ". " + step.rule + "  =>  " + step.result);
         });
 
         out_area.val(curr_text + '\nSteps:' + steps_text);

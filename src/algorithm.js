@@ -3,8 +3,8 @@
 const { ipcRenderer } = require('electron');
 
 var alphabetM, alphabetA;
-var rules = {};
 var inputString, outputString;
+var rules = [];
 var steps = [];
 var end = false;
 var terminate = false;
@@ -18,16 +18,20 @@ function runCode(tm, ta, code, input) {
     });
     inputString = outputString = input;
 
+    console.log(rules);
+
+    let i = 1;
     while(!end) {
         end = noRulesToApply();
-        for (let rule in rules) {
-            if (outputString.includes(rule) || rule==="\\") {
-                applyRule(rule);
+        for (let rule of rules) {
+            if (outputString.includes(rule.l) || rule.l==="\\") {
+                applyRule(rule, i++);
                 break;
             }
         }
     }
 
+    steps = steps.sort(function(a, b) { return a.i - b.i; });
     console.log(steps);
     ipcRenderer.send('set-output', getMessage());
 }
@@ -50,42 +54,45 @@ function getMessage() {
 
 function splitRule(rule) {
     const parts = rule.split(" -> ");
-    rules[parts[0]] = parts[1];
+    rules.push({
+        l: parts[0],
+        r: parts[1]
+    });
 }
 
-function applyRule(rule) {
+function applyRule(rule, i) {
     // if this rule is FINAL
-    if (rules[rule].includes(".")) {
-        let replacement = rules[rule].substring(0, rules[rule].length - 1);
-        outputString = outputString.replace(rule, replacement);
+    if (rule.r.includes(".")) {
+        let replacement = rule.r.substring(0, rule.r.length - 1);
+        outputString = outputString.replace(rule.l, replacement);
         end = true;
     }
     // if the RIGHT part of rule is EMPTY
-    else if (rules[rule] === "\\") {
-        outputString = outputString.replace(rule, "");
+    else if (rule.r === "\\") {
+        outputString = outputString.replace(rule.l, "");
     }
     // if the LEFT part of rule is EMPTY
-    else if (rule === "\\") {
-        outputString = rules[rule] + outputString;
+    else if (rule.l === "\\") {
+        outputString = rule.r + outputString;
     }
     // default (neither FINAL, nor contains EMPTY parts)
     else {
-        outputString = outputString.replace(rule, rules[rule]);
+        outputString = outputString.replace(rule.l, rule.r);
     }
 
     checkForEndlessCycle();
 
     let step = {
-        rule: rule + " -> " + rules[rule],
+        i: i,
+        rule: rule.l + " -> " + rule.r,
         result: outputString
     };
-    steps.push(step);
-    console.log(step);
+   steps.push(step);
 }
 
 function noRulesToApply() {
-    for (let rule in rules) {
-        if (outputString.includes(rule) || rule==="\\")
+    for (let rule of rules) {
+        if (outputString.includes(rule.l) || rule.l==="\\")
             return false;
     }
     console.log("No rules to apply");
@@ -101,7 +108,7 @@ function checkForEndlessCycle() {
     let steps_ = steps.reverse();
     for (let step of steps_) {
         if (outputString == step.result) {
-            console.log("repeats " + outputString + " " + step.result);
+            console.log("Repeats " + outputString + " " + step.result);
             terminate = true;
             break;
         }

@@ -52,7 +52,7 @@ function checkAlphabetAdditional(tm, ta) {
 
 function checkCode(tm, ta, code) {
     let alp = (tm + ta).replace(/\s/g, "");
-    console.log(alp);
+    //console.log(alp);
     if (alp.length == 0) return false;
 
     let empty = new RegExp('^\\s*$');
@@ -94,7 +94,7 @@ function checkCode(tm, ta, code) {
             else {
                 flag = false;
                 l = line;
-                console.log("Wrong line: " + line);
+                //console.log("Wrong line: " + line);
             }
             code = code.replace(line, l);
         }
