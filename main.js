@@ -15,7 +15,7 @@ function main() {
         file: path.join('renderer','index.html')
     });
 
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     ipcMain.on('set-tm', (event, val) => {
         store.saveTm();
@@ -32,9 +32,9 @@ function main() {
         mainWindow.send('code', val)
     });
 
-    ipcMain.on('set-input', (event, res) => {
+    ipcMain.on('set-input', (event, val) => {
         store.saveInput();
-        mainWindow.send('input', res)
+        mainWindow.send('input', val)
     });
 
     ipcMain.on('set-output', (event, res) => {

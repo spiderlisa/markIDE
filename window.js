@@ -2,20 +2,25 @@
 
 const { BrowserWindow } = require('electron');
 
-const defaultProps = {
-    show: false
-};
+
 
 class Window extends BrowserWindow {
     constructor({file, windowSettings}) {
-        super({ webPreferences: { nodeIntegration: true },
-                windowSettings});
+        const props = {
+            show: false,
+            webPreferences: { nodeIntegration: true },
+            height: 700,
+            width: 1100,
+            windowSettings
+        };
+
+        super(props);
 
         this.loadFile(file);
 
         this.once('ready-to-show', () => {
             this.show()
-        })
+        });
     }
 }
 

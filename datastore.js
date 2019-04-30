@@ -60,16 +60,6 @@ class DataStore extends Store {
         this.output = this.get('output');
         return this
     }
-
-    /*addTodo(todo) {
-        this.todos = [...this.todos, todo]
-        return this.saveTodos()
-    }
-
-    deleteTodo(todo) {
-        this.todos = this.todos.filter(t => t != todo)
-        return this.saveTodos()
-    }*/
 }
 
 module.exports = DataStore;

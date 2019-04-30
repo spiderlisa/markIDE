@@ -1,9 +1,15 @@
 html, body {
     height: 100%;
+    overflow: scroll;
+    overflow-x: hidden;
 }
 
 .tall-100 {
     height: 100%;
+}
+
+.tall-95 {
+    height: calc(100% - 49px);
 }
 
 .no-margin {
@@ -36,7 +42,7 @@ html, body {
     margin-bottom: 0 !important;
 }
 
-#code-area {
+#code_area {
     height: 100%;
 }
 
@@ -50,3 +56,15 @@ html, body {
     height: 20px;
 }
 
+textarea::-webkit-scrollbar, .menu::-webkit-scrollbar {
+    width: 7px !important;
+}
+
+textarea::-webkit-scrollbar-track, .menu::-webkit-scrollbar-track {
+    width: 7px !important;
+    background: transparent !important;
+}
+
+textarea::-webkit-scrollbar-thumb, .menu::-webkit-scrollbar-thumb {
+    width: 7px !important;
+}

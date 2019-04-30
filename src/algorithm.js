@@ -8,7 +8,6 @@ var inputString, outputString;
 var steps = [];
 var end = false;
 var terminate = false;
-var cycleCount = 0;
 
 function runCode(tm, ta, code, input) {
     alphabetM = tm.split(" ");
@@ -22,18 +21,15 @@ function runCode(tm, ta, code, input) {
     while(!end) {
         end = noRulesToApply();
         for (let rule in rules) {
-            if (outputString.includes(rule)) {
+            if (outputString.includes(rule) || rule==="\\") {
                 applyRule(rule);
                 break;
             }
         }
-        console.log(end);
     }
 
-    ipcRenderer.send('set-output', getMessage());
-
     console.log(steps);
-    console.log(cycleCount);
+    ipcRenderer.send('set-output', getMessage());
 }
 
 function getMessage() {
@@ -89,13 +85,19 @@ function applyRule(rule) {
 
 function noRulesToApply() {
     for (let rule in rules) {
-        if (outputString.includes(rule))
+        if (outputString.includes(rule) || rule==="\\")
             return false;
     }
+    console.log("No rules to apply");
     return true;
 }
 
 function checkForEndlessCycle() {
+    if (outputString.length >= 500) {
+        terminate = true;
+        return;
+    }
+
     let steps_ = steps.reverse();
     for (let step of steps_) {
         if (outputString == step.result) {
@@ -110,8 +112,6 @@ function outputInRange() {
     let regex = new RegExp('^[' + alphabetM.join('') + ']+$');
     return regex.test(outputString);
 }
-
-
 
 exports.RunCode = runCode;
 exports.GetSteps = steps;

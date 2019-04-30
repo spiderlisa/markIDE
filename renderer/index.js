@@ -16,12 +16,17 @@ $(function () {
         checkups.CheckCode(getMainAlph(), getAddtAlph(), getCode()
         // ));*/
 
-    // Main form validation
+    // Code area validation
     $.fn.form.settings.rules.codeCheck = function(value) {
-        console.log(checkups.CheckCode(getMainAlph(), getAddtAlph(), value));
         return checkups.CheckCode(getMainAlph(), getAddtAlph(), value);
     };
 
+    // Word input validation
+    $.fn.form.settings.rules.inputCheck = function(value) {
+        return checkups.CheckInput(getMainAlph(), value);
+    };
+
+    // Main form validation
     $('.ui.form').form({
         on: "blur",
         fields: {
@@ -40,7 +45,7 @@ $(function () {
             input: {
                 identifier: 'word-input',
                 rules: [{
-                    type: 'empty',
+                    type: 'inputCheck',
                 }]
             }},
         onInvalid: function () {
@@ -56,22 +61,6 @@ $(function () {
     });*/
 
 
-});
-
-ipcRenderer.on('tm', (event, value) => {
-    $("#alph-main").val(value)
-});
-
-ipcRenderer.on('ta', (event, value) => {
-    $("#alph-addt").val(value)
-});
-
-ipcRenderer.on('code', (event, value) => {
-    $("#code-area").val(value)
-});
-
-ipcRenderer.on('output', (event, value) => {
-    $("#output-area").val(value)
 });
 
 $("#alph-main").change(function () {
@@ -100,9 +89,38 @@ $("#run-btn").click(function () {
 });
 
 $("#steps-btn").click(function () {
-    var out_area = $("#output-area");
-    let curr = out_area.text();
-    out_area.text(curr + '\n\nSteps:\n' + algorithm.GetSteps);
+    let out_area = $("#output-area");
+    let curr_text = out_area.val();
+
+    if (curr_text.includes("Steps:")) {
+        curr_text.replace('/^(\nSteps:).*$/', '');
+        console.log(curr_text);
+        out_area.val(curr_text);
+    } else {
+        let steps = algorithm.GetSteps;
+        let steps_text = '';
+        steps.forEach(function (step, i) {
+            steps_text += ("\n" + i + ". " + step.rule + "  =>  " + step.result);
+        });
+
+        out_area.val(curr_text + '\nSteps:' + steps_text);
+    }
+});
+
+ipcRenderer.on('tm', (event, value) => {
+    $("#alph-main").val(value)
+});
+
+ipcRenderer.on('ta', (event, value) => {
+    $("#alph-addt").val(value)
+});
+
+ipcRenderer.on('code', (event, value) => {
+    $("#code-area").val(value)
+});
+
+ipcRenderer.on('output', (event, value) => {
+    $("#output-area").val(value)
 });
 
 function getMainAlph() {
