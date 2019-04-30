@@ -2,8 +2,6 @@
 
 const { BrowserWindow } = require('electron');
 
-
-
 class Window extends BrowserWindow {
     constructor({file, windowSettings}) {
         const props = {

@@ -3,10 +3,12 @@
 const { ipcRenderer } = require('electron');
 const CodeMirror = require('../src/codemirror');
 
-const checkups = require('../src/checkups');
-const algorithm = require('../src/algorithm');
+var checkups = require('../src/checkups');
+var Algorithm = require('../src/algorithm');
 
 var editor;
+
+var curr_alg;
 
 $(function () {
     /*editor = CodeMirror.fromTextArea($("#code-area")[0], {
@@ -49,62 +51,59 @@ $(function () {
                 }]
             }},
         onInvalid: function () {
-            $("#run-btn").addClass("disabled");},
+            $("#run-btn").addClass("disabled");
+        },
         onValid: function () {
             $("#run-btn").removeClass("disabled");
         }
+    }).submit(function (e) {
+        e.preventDefault();
+        $("#run-btn").click();
+        return false;
     });
 
-    /*$('#word-input.focus').keyup(function (e) {
-        if (e.which == 13 || e.keyCode == 13)
-            $("#run-btn").click();
-    });*/
+    $("#alph-main").change(function () {
+        checkups.CheckAlphabets(getMainAlph(), getAddtAlph());
+    });
 
+    $("#alph-addt").change(function () {
+        checkups.CheckAlphabets(getMainAlph(), getAddtAlph());
+    });
 
-});
+    $("#code-area").change(function () {
+        checkups.CheckCode(getMainAlph(), getAddtAlph(), getCode());
+    });
 
-$("#alph-main").change(function () {
-    checkups.CheckAlphabets(getMainAlph(), getAddtAlph());
-});
+    $("#word-input").change(function () {
+        checkups.CheckInput(getMainAlph(), getInput());
+    });
 
-$("#alph-addt").change(function () {
-    checkups.CheckAlphabets(getMainAlph(), getAddtAlph());
-});
+    $("#run-btn").click(function () {
+        curr_alg = new Algorithm(getMainAlph(), getCode(), getInput());
+        $("#output-area").val(curr_alg.run());
 
-$("#code-area").change(function () {
-    checkups.CheckCode(getMainAlph(), getAddtAlph(), getCode());
-});
+        $("#steps-btn").removeClass('hidden');
+    });
 
-$("#word-input").change(function () {
-    checkups.CheckInput(getMainAlph(), getInput());
-});
+    $("#steps-btn").click(function () {
+        let out_area = $("#output-area");
+        let curr_text = out_area.val();
 
-$("#run-btn").click(function () {
-    checkups.CheckAlphabets(getMainAlph(), getAddtAlph());
-    checkups.CheckCode(getMainAlph(), getAddtAlph(), getCode());
-    checkups.CheckInput(getMainAlph(), getInput());
+        if (curr_text.includes("Steps:")) {
+            curr_text.replace('/^(\nSteps:).*$/', '');
+            console.log(curr_text);
+            out_area.val(curr_text);
+        } else {
+            let steps = curr_alg.steps;
+            let steps_text = '';
+            steps.forEach(function (step) {
+                steps_text += ("\n" + step.i + ". " + step.rule + "  =>  " + step.result);
+            });
 
-    algorithm.RunCode(getMainAlph(), getAddtAlph(), getCode(), getInput());
-    $("#steps-btn").removeClass('hidden');
-});
+            out_area.val(curr_text + '\nSteps:' + steps_text);
+        }
+    });
 
-$("#steps-btn").click(function () {
-    let out_area = $("#output-area");
-    let curr_text = out_area.val();
-
-    if (curr_text.includes("Steps:")) {
-        curr_text.replace('/^(\nSteps:).*$/', '');
-        console.log(curr_text);
-        out_area.val(curr_text);
-    } else {
-        let steps = algorithm.GetSteps;
-        let steps_text = '';
-        steps.forEach(function (step) {
-            steps_text += ("\n" + step.i + ". " + step.rule + "  =>  " + step.result);
-        });
-
-        out_area.val(curr_text + '\nSteps:' + steps_text);
-    }
 });
 
 ipcRenderer.on('tm', (event, value) => {
