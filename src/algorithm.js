@@ -1,11 +1,7 @@
 'use strict';
 
-const { ipcRenderer } = require('electron');
-
 class Algorithm {
     constructor(tm, code, input) {
-        console.log("Data:\n"+tm+"\n"+"\n"+code+"\n"+input);
-
         this.alphabetM = tm.split(" ");
         this.inputString = input;
         this.outputString = input;
@@ -29,7 +25,7 @@ class Algorithm {
 
     run() {
         let i = 1;
-        while(!this.end) {
+        while(!this.end && !this.terminate) {
             this.end = this.noRulesToApply();
             for (let rule of this.rules) {
                 if (this.outputString.includes(rule.l) || rule.l==="\\") {
@@ -46,7 +42,7 @@ class Algorithm {
     applyRule(rule, i) {
         // if this rule is FINAL
         if (rule.r.includes(".")) {
-            let replacement = rule.r.substring(0, rule.r.length - 1);
+            let replacement = rule.r.substring(1, rule.r.length);
             this.outputString = this.outputString.replace(rule.l, replacement);
             this.end = true;
         }
@@ -76,6 +72,7 @@ class Algorithm {
     checkForEndlessCycle() {
         if (this.outputString.length >= 500) {
             this.terminate = true;
+            console.log("Time to stop...");
             return;
         }
 

@@ -36,7 +36,6 @@ function main() {
 
 function initMenu() {
     const isMac = (process.platform === 'darwin');
-    console.log(app.getName());
     const template = [
         (isMac ? {
             label: app.getName(),

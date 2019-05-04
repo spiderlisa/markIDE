@@ -6,7 +6,8 @@ function checkAlphabets(tm, ta) {
     var alphabet_main = tm.split("");
     alphabet_main = alphabet_main.filter(function (elem, pos, self) {
         return elem !== " " &&
-            self.indexOf(elem) === pos
+            self.indexOf(elem) === pos &&
+            elem !== "\\" && elem !== "."
     });
 
     ipcRenderer.send('set-tm', alphabet_main.join(" "));
@@ -16,7 +17,8 @@ function checkAlphabets(tm, ta) {
         alphabet_additional = alphabet_additional.filter(function (elem, pos, self) {
             return elem !== " " &&
                 !alphabet_main.includes(elem) &&
-                self.indexOf(elem) === pos
+                self.indexOf(elem) === pos &&
+                elem !== "\\" && elem !== "."
         });
 
         ipcRenderer.send('set-ta', alphabet_additional.join(" "));
@@ -59,9 +61,9 @@ function checkCode(tm, ta, code) {
     // matches [ // my comment ... ]
     let comment = new RegExp('^\\s*(\\\/\\\/)(.*)\\s*$');
     // matches [ abc -> b ] or [ abc b ]
-    let re1 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(['+ alp +']+.?)\\s*$');
+    let re1 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(.?['+ alp +']+)\\s*$');
     // matches [ \ -> ab ] or [ \ ab ]
-    let re2 = new RegExp('^\\s*(\\\\)((\\s*->\\s*)|(\\s+))(['+ alp +']+.?)\\s*$');
+    let re2 = new RegExp('^\\s*(\\\\)((\\s*->\\s*)|(\\s+))(.?['+ alp +']+)\\s*$');
     // matches [ ab -> \ ] or [ ab \ ]
     let re3 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(\\\\)\\s*$');
     // matches [ ab -> . ] or [ ab . ]

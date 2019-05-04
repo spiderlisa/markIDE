@@ -7,8 +7,8 @@ class Window extends BrowserWindow {
         const props = {
             show: false,
             webPreferences: { nodeIntegration: true },
-            height: 700,
-            width: 1100,
+            height: 585,
+            width: 900,
             windowSettings
         };
 

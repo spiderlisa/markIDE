@@ -1,23 +1,13 @@
 'use strict';
 
 const { ipcRenderer } = require('electron');
-const CodeMirror = require('../src/codemirror');
 
 var checkups = require('../src/checkups');
 var Algorithm = require('../src/algorithm');
 
-var editor;
-
 var curr_alg;
 
 $(function () {
-    /*editor = CodeMirror.fromTextArea($("#code-area")[0], {
-        lineNumbers : true,
-        theme : "mdn-like"
-    }).on('change',
-        checkups.CheckCode(getMainAlph(), getAddtAlph(), getCode()
-        // ));*/
-
     // Code area validation
     $.fn.form.settings.rules.codeCheck = function(value) {
         return checkups.CheckCode(getMainAlph(), getAddtAlph(), value);
@@ -100,7 +90,12 @@ $(function () {
                 steps_text += ("\n" + step.i + ". " + step.rule + "  =>  " + step.result);
             });
 
-            out_area.val(curr_text + '\nSteps:' + steps_text);
+            if (steps_text==='')
+                steps_text = 'No steps have been made.';
+            else
+                steps_text = 'Steps:' + steps_text;
+
+            out_area.val(curr_text + '\n' + steps_text);
         }
     });
 
