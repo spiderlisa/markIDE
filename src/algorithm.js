@@ -95,6 +95,7 @@ class Algorithm {
     }
 
     outputInRange() {
+        if (this.outputString.trim() == "") return true;
         let regex = new RegExp('^[' + this.alphabetM.join('') + ']+$');
         return regex.test(this.outputString);
     }

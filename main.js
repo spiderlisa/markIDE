@@ -53,6 +53,12 @@ function initMenu() {
         } : {}), {
             label: 'File',
             submenu: [{
+                label: 'New',
+                accelerator: 'CmdOrCtrl+N',
+                click() {
+                    //ipcMain.send('open-file-dialog');
+                }
+            },{
                 label: 'Open',
                 accelerator: 'CmdOrCtrl+O',
                 click() {

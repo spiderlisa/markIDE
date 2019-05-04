@@ -3,7 +3,7 @@
 const { ipcRenderer } = require('electron');
 
 function checkAlphabets(tm, ta) {
-    var alphabet_main = tm.split("");
+    let alphabet_main = tm.split("");
     alphabet_main = alphabet_main.filter(function (elem, pos, self) {
         return elem !== " " &&
             self.indexOf(elem) === pos &&
@@ -13,7 +13,7 @@ function checkAlphabets(tm, ta) {
     ipcRenderer.send('set-tm', alphabet_main.join(" "));
 
     if (ta!=='') {
-        var alphabet_additional = ta.split("");
+        let alphabet_additional = ta.split("");
         alphabet_additional = alphabet_additional.filter(function (elem, pos, self) {
             return elem !== " " &&
                 !alphabet_main.includes(elem) &&
@@ -25,36 +25,8 @@ function checkAlphabets(tm, ta) {
     }
 }
 
-function checkAlphabetMain(tm) {
-    if (tm.trim() == "") return false;
-
-    var alphabet_main = tm.split("");
-    alphabet_main = alphabet_main.filter(function (elem, pos, self) {
-        return elem !== " " &&
-            self.indexOf(elem) === pos
-    });
-
-    ipcRenderer.send('set-tm', alphabet_main.join(" "));
-    return true;
-}
-
-function checkAlphabetAdditional(tm, ta) {
-    if (ta!=='') {
-        var alphabet_additional = ta.split("");
-        alphabet_additional = alphabet_additional.filter(function (elem, pos, self) {
-            return elem !== " " &&
-                !alphabet_main.includes(elem) &&
-                self.indexOf(elem) === pos
-        });
-
-        ipcRenderer.send('set-ta', alphabet_additional.join(" "));
-        return true;
-    }
-}
-
 function checkCode(tm, ta, code) {
     let alp = (tm + ta).replace(/\s/g, "");
-    //console.log(alp);
     if (alp.length == 0) return false;
 
     let empty = new RegExp('^\\s*$');
@@ -68,11 +40,6 @@ function checkCode(tm, ta, code) {
     let re3 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(\\\\)\\s*$');
     // matches [ ab -> . ] or [ ab . ]
     let re4 = new RegExp('^\\s*(['+ alp +']+)((\\s*->\\s*)|(\\s+))(.)\\s*$');
-
-    //console.log(re1);
-    //console.log(re2);
-    //console.log(re3);
-    //console.log(re4);
 
     let lines = code.split("\n");
 
@@ -109,12 +76,18 @@ function checkCode(tm, ta, code) {
 function checkInput(tm, input) {
     if (input.trim() == "") return true;
 
-    let tm_reg = new RegExp('^['+tm.replace(" ", "")+']+$');
+    let tm_reg = new RegExp('^['+ tm.replace(" ", "") +']+$');
     return tm_reg.test(input);
 }
 
+function checkOutput(tm, output) {
+    if (output.trim() == "") return true;
+
+    let regex = new RegExp('^['+ tm.join('') +']+$');
+    return regex.test(output);
+}
+
 exports.CheckAlphabets = checkAlphabets;
-exports.CheckAlphabetMain = checkAlphabetMain;
-exports.CheckAlphabetAdditional = checkAlphabetAdditional;
 exports.CheckCode = checkCode;
 exports.CheckInput = checkInput;
+exports.CheckOutput = checkOutput;
