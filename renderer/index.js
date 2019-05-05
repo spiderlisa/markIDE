@@ -43,7 +43,8 @@ $(function () {
                 rules: [{
                     type: 'inputCheck',
                 }]
-            }},
+            }
+        },
         onInvalid: function () {
             $("#run-btn").addClass("disabled");
         },
