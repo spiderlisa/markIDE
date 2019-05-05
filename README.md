@@ -3,7 +3,7 @@ Interpreter app for Markov algorithms.
 
 To run the application first make sure you have Node.js, npm and gulp installed on your computer.
 
-~ cd <directory markide path>
+Open Terminal or Command line in the project directory, then type
 ~ npm install
 
 One of the dependencies to be installed is Semantic UI.
