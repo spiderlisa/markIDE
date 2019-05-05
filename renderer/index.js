@@ -1,13 +1,17 @@
 'use strict';
 
 const { ipcRenderer } = require('electron');
+var fs = require('fs');
 
-var checkups = require('../src/checkups');
-var Algorithm = require('../src/algorithm');
+var Algorithm = require('./src/algorithm');
+var checkups = require('./src/checkups');
 
 var curr_alg;
+var curr_filepath;
 
 $(function () {
+    curr_filepath = null;
+
     // Code area validation
     $.fn.form.settings.rules.codeCheck = function(value) {
         return checkups.CheckCode(getMainAlph(), getAddtAlph(), value);
@@ -117,6 +121,53 @@ ipcRenderer.on('output', (event, value) => {
     $("#output-area").val(value)
 });
 
+ipcRenderer.on('new-file', (event) => {
+    curr_filepath = null;
+    $('.ui.form').form('reset');
+    setBreadcrumb("New algorithm");
+});
+
+ipcRenderer.on('open-file', (event, path) => {
+    $('.ui.form').form('reset');
+    fs.readFile(path, 'utf-8', (err, data) => {
+        if(err){
+            alert("An error occurred reading the file :" + err.message);
+            return;
+        }
+        console.log(data);
+        fillWithContent(data);
+        curr_filepath = path;
+        setBreadcrumb(path);
+    });
+});
+
+ipcRenderer.on('save-file', (event) => {
+    if (!curr_filepath) {
+        console.log(event.sender);
+        event.sender.send('saveas');
+    } else {
+        let content = contentToTxt();
+        fs.writeFile(curr_filepath, content, (err) => {
+            if(err){
+                console.log("An error occurred creating the file " + err.message);
+            }
+            console.log("The file has been successfully saved");
+        });
+    }
+});
+
+ipcRenderer.on('saveas-file', (event, path) => {
+    let content = contentToTxt();
+    fs.writeFile(path, content, (err) => {
+        if(err){
+            console.log("An error occurred creating the file " + err.message);
+        }
+        console.log("The file has been successfully saved");
+        curr_filepath = path;
+        setBreadcrumb(path);
+    });
+});
+
 function getMainAlph() {
     return $("#alph-main").val();
 }
@@ -131,4 +182,39 @@ function getCode() {
 
 function getInput() {
     return $("#word-input").val();
+}
+
+function fillWithContent(content) {
+    let lines = content.split("\n");
+    $("#alph-main").val(lines[0]);
+    $("#alph-addt").val(lines[1]);
+    $("#word-input").val(lines[2]);
+
+    let code = "";
+    lines.forEach(function (l, i) {
+        if (i>2)
+            code += l + "\n";
+    });
+    $("#code-area").val(code);
+}
+
+function contentToTxt() {
+    let text = getMainAlph() + "\n";
+    text += getAddtAlph() + "\n";
+    text += getInput() + "\n";
+    text += getCode();
+    return text;
+}
+
+function setBreadcrumb(path) {
+    let html = "";
+    let parts = path.split(/[\\\/]/);
+    parts.forEach(function (p, i) {
+        if (i === parts.length-1)
+            html += '<div class="active section">'+p+'</div>';
+        else
+            html += '<div class="section">'+p+'</div><div class="divider"> / </div>';
+    });
+    console.log(html);
+    $(".ui.breadcrumb").html(html);
 }

@@ -1,7 +1,7 @@
 'use strict';
 
+const { app, ipcMain, Menu, shell, dialog } = require('electron');
 const path = require('path');
-const { app, ipcMain, Menu, shell } = require('electron');
 
 const Window = require('./window');
 let mainWindow;
@@ -11,27 +11,25 @@ function main() {
         file: path.join('renderer','index.html')
     });
 
-    //mainWindow.webContents.openDevTools();
-
     ipcMain.on('set-tm', (event, val) => {
-        mainWindow.send('tm', val)
+        mainWindow.send('set-tm', val)
     });
 
     ipcMain.on('set-ta', (event, val) => {
-        mainWindow.send('ta', val)
+        mainWindow.send('set-ta', val)
     });
 
     ipcMain.on('set-code', (event, val) => {
-        mainWindow.send('code', val)
+        mainWindow.send('set-code', val)
     });
 
     ipcMain.on('set-input', (event, val) => {
-        mainWindow.send('input', val)
+        mainWindow.send('set-input', val)
     });
 
     ipcMain.on('set-output', (event, res) => {
-        mainWindow.send('output', res)
-    })
+        mainWindow.send('set-output', res)
+    });
 }
 
 function initMenu() {
@@ -56,24 +54,44 @@ function initMenu() {
                 label: 'New',
                 accelerator: 'CmdOrCtrl+N',
                 click() {
-                    //ipcMain.send('open-file-dialog');
+                    mainWindow.webContents.send('new-file');
                 }
             },{
                 label: 'Open',
                 accelerator: 'CmdOrCtrl+O',
                 click() {
-                    ipcMain.send('open-file-dialog');
+                    dialog.showOpenDialog({
+                            filters: [{ name: 'NMA files', extensions: ['mi']}],
+                            properties: ["openFile"]
+                        },
+                        (fileNames) => {
+                            if(fileNames === undefined){
+                                console.log("No file selected");
+                                return;
+                            }
+                            mainWindow.webContents.send('open-file', fileNames[0]);
+                    });
                 }
             }, {
                 label: 'Save',
                 accelerator: 'CmdOrCtrl+S',
                 click() {
-
+                    mainWindow.webContents.send('save-file');
                 }
             }, {
                 label: 'Save As',
                 accelerator: 'Alt+CmdOrCtrl+S',
-                role: 'save-dialog'
+                click() {
+                    dialog.showSaveDialog({
+                        filters: [{ name: 'NMA files', extensions: ['mi']}]
+                    }, (fileName) => {
+                        if (fileName === undefined){
+                            console.log("You didn't save the file");
+                            return;
+                        }
+                        mainWindow.webContents.send('saveas-file', fileName);
+                    });
+                }
             }]
         }, {
             label: 'Edit',
@@ -139,3 +157,16 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', app.quit);
+
+app.on('saveas', (event) => {
+    console.log("hi");
+    dialog.showSaveDialog({
+        filters: [{ name: 'NMA files', extensions: ['mi']}]
+    }, (fileName) => {
+        if (fileName === undefined){
+            console.log("You didn't save the file");
+            return;
+        }
+        mainWindow.webContents.send('saveas-file', fileName);
+    });
+});
